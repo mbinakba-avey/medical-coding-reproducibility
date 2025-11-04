@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-**/__pycache__/
+**/*__pycache__*/
 *.py[cod]
 *$py.class
 
@@ -137,3 +137,7 @@ data_analysis/files
 # wandb
 wandb
 outputs
+
+prepare_data/__pycache__/
+src/__pycache__/
+**/*.pyc
