@@ -46,13 +46,17 @@ The splits are found in `files/data`. The splits are described in the paper.
 1. Create a conda environement `conda create -n coding python=3.10`
 2. Install the packages `pip install . -e`
 
+### Setup uv environment
+1. Create a uv environment `uv init --pyhton 3.10`
+2. Install the packages `uv add -r requirements.txt`
+
 ### Prepare MIMIC-III
 This code has been developed on MIMIC-III v1.4. 
 1. Download the MIMIC-III data into your preferred location `path/to/mimiciii`. Please note that you need to complete training to acces the data. The training is free, but takes a couple of hours.  - [link to data access](https://physionet.org/content/mimiciii/1.4/)
 2. Open the file `src/settings.py`
 3. Change the variable `DOWNLOAD_DIRECTORY_MIMICIII` to the path of your downloaded data `path/to/mimiciii`
 4. If you want to use the MIMIC-III full and MIMIC-III 50 from the [Explainable Prediction of Medical Codes from Clinical Text](https://aclanthology.org/N18-1100/) you need to run `python prepare_data/prepare_mimiciii_mullenbach.py`
-5. If you want to use MIMIC-III clean from our paper you need to run `python prepare_data/prepare_mimiciii.py`
+5. If you want to use MIMIC-III clean from our paper you need to run `python prepare_data/prepare_mimiciii.py` or `uv run -m prepare_data.prepare_mimiciii.py`
 
 ### Prepare MIMIC-IV
 This code has been developed on MIMIC-IV and MIMIC-IV v2.2. 
@@ -60,7 +64,7 @@ This code has been developed on MIMIC-IV and MIMIC-IV v2.2.
 2. Open the file `src/settings.py`
 3. Change the variable `DOWNLOAD_DIRECTORY_MIMICIV` to the path of your downloaded data `path/to/mimiciv`
 4. Change the variable `DOWNLOAD_DIRECTORY_MIMICIV_NOTE` to the path of your downloaded data `path/to/mimiciv-note`
-5. Run `python prepare_data/prepare_mimiciv.py`
+5. Run `python prepare_data/prepare_mimiciv.py` or `uv run -m prepare_data.prepare_mimiciv.py`
 
 ### Before running experiments
 1. Create a weights and biases account. It is possible to run the experiments without wandb.
