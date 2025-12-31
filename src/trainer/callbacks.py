@@ -101,6 +101,11 @@ class WandbCallback(BaseCallback):
             wandb_cfg["data_info"] = trainer.lookups.data_info
             OmegaConf.save(trainer.config, trainer.experiment_path / "config.yaml")
 
+        # Exclude explicitly set parameters from config to avoid conflicts
+        wandb_kwargs = OmegaConf.to_container(self.config, resolve=True)
+        excluded_keys = {"config", "settings", "tags", "name", "mode", "dir"}
+        wandb_kwargs = {k: v for k, v in wandb_kwargs.items() if k not in excluded_keys}
+
         wandb.init(
             config=wandb_cfg,
             settings=wandb.Settings(start_method="thread"),
@@ -108,7 +113,7 @@ class WandbCallback(BaseCallback):
             name=trainer.config.name,
             mode=mode,
             dir=EXPERIMENT_DIR,
-            **self.config,
+            **wandb_kwargs,
         )
         wandb.watch(trainer.model)
         if not trainer.config.debug:
