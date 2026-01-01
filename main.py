@@ -142,6 +142,33 @@ def main(cfg: OmegaConf) -> None:
 
     if cfg.load_model:
         trainer.experiment_path = Path(cfg.load_model)
+        # Try to load checkpoint to resume training
+        checkpoint_path = trainer.experiment_path
+        # Prefer best_model.pt, then final_model.pt, then any .pt file
+        checkpoint_files = ["best_model.pt", "final_model.pt"]
+        checkpoint_loaded = False
+        for checkpoint_file in checkpoint_files:
+            checkpoint_path_full = checkpoint_path / checkpoint_file
+            if checkpoint_path_full.exists():
+                trainer.load_checkpoint(checkpoint_file)
+                checkpoint_loaded = True
+                pprint(f"Loaded checkpoint from epoch {trainer.epoch}")
+                break
+        
+        if not checkpoint_loaded:
+            # Try to find any .pt file in the directory
+            pt_files = list(checkpoint_path.glob("*.pt"))
+            if pt_files:
+                # Use the first .pt file found (could be sorted by modification time if needed)
+                checkpoint_file = pt_files[0].name
+                trainer.load_checkpoint(checkpoint_file)
+                checkpoint_loaded = True
+                pprint(f"Resuming training from epoch {trainer.epoch}")
+        
+        if checkpoint_loaded:
+            # Increment epoch to resume from the next epoch (checkpoint contains last completed epoch)
+            trainer.epoch += 1
+            pprint(f"Will continue training from epoch {trainer.epoch}")
 
     trainer.fit()
 

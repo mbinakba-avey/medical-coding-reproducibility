@@ -353,16 +353,22 @@ class Trainer:
             "epoch": self.epoch,
             "db": self.best_db,
         }
+        if self.lr_scheduler is not None:
+            checkpoint["lr_scheduler"] = self.lr_scheduler.state_dict()
         torch.save(checkpoint, self.experiment_path / file_name)
         pprint("Saved checkpoint to {}".format(self.experiment_path / file_name))
 
     def load_checkpoint(self, file_name: str) -> None:
-        checkpoint = torch.load(self.experiment_path / file_name)
+        # Load checkpoint to the current device
+        map_location = self.device if isinstance(self.device, str) else str(self.device)
+        checkpoint = torch.load(self.experiment_path / file_name, map_location=map_location)
         self.model.load_state_dict(checkpoint["model"])
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         self.gradient_scaler.load_state_dict(checkpoint["scaler"])
         self.epoch = checkpoint["epoch"]
         self.best_db = checkpoint["db"]
+        if self.lr_scheduler is not None and "lr_scheduler" in checkpoint:
+            self.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
         pprint("Loaded checkpoint from {}".format(self.experiment_path / file_name))
 
     def save_transforms(self) -> None:
