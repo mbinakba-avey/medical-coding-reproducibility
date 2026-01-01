@@ -356,6 +356,8 @@ class Trainer:
         if self.lr_scheduler is not None:
             checkpoint["lr_scheduler"] = self.lr_scheduler.state_dict()
         torch.save(checkpoint, self.experiment_path / file_name)
+        # Save token2index.json and target2index.json with each checkpoint
+        self.save_transforms()
         pprint("Saved checkpoint to {}".format(self.experiment_path / file_name))
 
     def load_checkpoint(self, file_name: str) -> None:
