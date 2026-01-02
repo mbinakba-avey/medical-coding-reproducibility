@@ -118,8 +118,8 @@ mimiciv_icd9 = mimiciv_icd9.merge(
     mimiciv_icd9_splits[[ID_COLUMN, "split"]], on=ID_COLUMN, how="left"
 )
 
-mimiciv_icd10 = pd.read_feather("path/to/mimiciv_icd10.feather")
-mimiciv_icd10_splits = pd.read_feather("path/to/mimiciv_icd10_split.feather")
+mimiciv_icd10 = pd.read_feather("path/to/mimiciv_icd10_revised.feather")
+mimiciv_icd10_splits = pd.read_feather("path/to/mimiciv_icd10_split_mlb_test.feather")
 mimiciv_icd10 = mimiciv_icd10.merge(
     mimiciv_icd10_splits[[ID_COLUMN, "split"]], on=ID_COLUMN, how="left"
 )

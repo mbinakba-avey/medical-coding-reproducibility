@@ -28,7 +28,7 @@ output_dir_icd9 = Path(DATA_DIRECTORY_MIMICIV_ICD9)
 output_dir_icd10 = Path(DATA_DIRECTORY_MIMICIV_ICD10)
 
 mimic_icd9 = pd.read_feather(output_dir_icd9 / "mimiciv_icd9.feather")
-mimic_icd10 = pd.read_feather(output_dir_icd10 / "mimiciv_icd10.feather")
+mimic_icd10 = pd.read_feather(output_dir_icd10 / "mimiciv_icd10_revised.feather")
 mimic_icd9[TARGET_COLUMN] = mimic_icd9[TARGET_COLUMN].apply(lambda x: list(x))
 mimic_icd10[TARGET_COLUMN] = mimic_icd10[TARGET_COLUMN].apply(lambda x: list(x))
 
@@ -127,7 +127,7 @@ def generate_training_subset(
 
 
 generate_split(mimic_icd9, output_dir_icd9 / "mimiciv_icd9_split.feather")
-generate_split(mimic_icd10, output_dir_icd10 / "mimiciv_icd10_split.feather")
+generate_split(mimic_icd10, output_dir_icd10 / "mimiciv_icd10_split_mlb_test.feather")
 mimic_icd9_splits = pd.read_feather(output_dir_icd9 / "mimiciv_icd9_split.feather")
 generate_training_subset(
     mimic_icd9,
@@ -166,7 +166,7 @@ generate_training_subset(
     output_dir_icd9 / "mimiciv_icd9_train_subset_10k.feather",
 )
 
-mimic_icd10_splits = pd.read_feather(output_dir_icd10 / "mimiciv_icd10_split.feather")
+mimic_icd10_splits = pd.read_feather(output_dir_icd10 / "mimiciv_icd10_split_mlb_test.feather")
 generate_training_subset(
     mimic_icd10,
     mimic_icd10_splits,

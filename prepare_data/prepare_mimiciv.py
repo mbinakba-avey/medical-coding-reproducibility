@@ -196,4 +196,4 @@ mimiciv_10 = preprocess_documents(df=mimiciv_10, preprocessor=preprocessor)
 
 # save files to disk
 mimiciv_9.to_feather(output_dir_icd9 / "mimiciv_icd9.feather")
-mimiciv_10.to_feather(output_dir_icd10 / "mimiciv_icd10.feather")
+mimiciv_10.to_feather(output_dir_icd10 / "mimiciv_icd10_revised.feather")

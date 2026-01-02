@@ -513,6 +513,199 @@ class F1Score(Metric):
         self._fn = torch.zeros((self.number_of_classes)).to(self.device)
 
 
+class InstancePrecision(Metric):
+    """Instance-based precision: compute precision per sample, then average."""
+    _str_value_fmt = "6.4"  # 6.4321
+
+    def __init__(
+        self,
+        number_of_classes: int,
+        threshold: float = 0.5,
+        name: str = "precision_instance",
+        tags: set[str] = None,
+        filter_codes: bool = True,
+    ):
+        super().__init__(
+            name=name,
+            tags=tags,
+            number_of_classes=number_of_classes,
+            threshold=threshold,
+        )
+        self.filter_codes = filter_codes
+
+    def update(self, batch: dict):
+        logits, targets = detach(batch["logits"]), detach(batch["targets"])
+        predictions = (logits > self.threshold).long()
+        
+        # Compute TP and FP per instance
+        tp_per_instance = torch.sum(predictions * targets, dim=1)
+        fp_per_instance = torch.sum(predictions * (1 - targets), dim=1)
+        
+        # Compute precision per instance
+        precision_per_instance = tp_per_instance / (tp_per_instance + fp_per_instance + 1e-10)
+        
+        # Accumulate sum and count
+        self._precision_sum += torch.sum(precision_per_instance)
+        self._num_examples += logits.size(0)
+
+    def compute(self, logits: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None) -> torch.Tensor:
+        # If logits and targets are provided, compute directly from them
+        if logits is not None and targets is not None:
+            logits, targets = detach(logits), detach(targets)
+            predictions = (logits > self.threshold).long()
+            
+            # Compute TP and FP per instance
+            tp_per_instance = torch.sum(predictions * targets, dim=1)
+            fp_per_instance = torch.sum(predictions * (1 - targets), dim=1)
+            
+            # Compute precision per instance
+            precision_per_instance = tp_per_instance / (tp_per_instance + fp_per_instance + 1e-10)
+            
+            # Return mean across instances
+            return torch.mean(precision_per_instance).cpu()
+        
+        # Otherwise, use accumulated values from batch updates
+        if self._num_examples == 0:
+            return torch.tensor(0.0)
+        return (self._precision_sum / self._num_examples).cpu()
+
+    def reset(self):
+        self._precision_sum = torch.tensor(0.0).to(self.device)
+        self._num_examples = 0
+
+
+class InstanceRecall(Metric):
+    """Instance-based recall: compute recall per sample, then average."""
+    _str_value_fmt = "6.4"  # 6.4321
+
+    def __init__(
+        self,
+        number_of_classes: int,
+        threshold: float = 0.5,
+        name: str = "recall_instance",
+        tags: set[str] = None,
+        filter_codes: bool = True,
+    ):
+        super().__init__(
+            name=name,
+            tags=tags,
+            number_of_classes=number_of_classes,
+            threshold=threshold,
+        )
+        self.filter_codes = filter_codes
+
+    def update(self, batch: dict):
+        logits, targets = detach(batch["logits"]), detach(batch["targets"])
+        predictions = (logits > self.threshold).long()
+        
+        # Compute TP and FN per instance
+        tp_per_instance = torch.sum(predictions * targets, dim=1)
+        fn_per_instance = torch.sum((1 - predictions) * targets, dim=1)
+        
+        # Compute recall per instance
+        recall_per_instance = tp_per_instance / (tp_per_instance + fn_per_instance + 1e-10)
+        
+        # Accumulate sum and count
+        self._recall_sum += torch.sum(recall_per_instance)
+        self._num_examples += logits.size(0)
+
+    def compute(self, logits: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None) -> torch.Tensor:
+        # If logits and targets are provided, compute directly from them
+        if logits is not None and targets is not None:
+            logits, targets = detach(logits), detach(targets)
+            predictions = (logits > self.threshold).long()
+            
+            # Compute TP and FN per instance
+            tp_per_instance = torch.sum(predictions * targets, dim=1)
+            fn_per_instance = torch.sum((1 - predictions) * targets, dim=1)
+            
+            # Compute recall per instance
+            recall_per_instance = tp_per_instance / (tp_per_instance + fn_per_instance + 1e-10)
+            
+            # Return mean across instances
+            return torch.mean(recall_per_instance).cpu()
+        
+        # Otherwise, use accumulated values from batch updates
+        if self._num_examples == 0:
+            return torch.tensor(0.0)
+        return (self._recall_sum / self._num_examples).cpu()
+
+    def reset(self):
+        self._recall_sum = torch.tensor(0.0).to(self.device)
+        self._num_examples = 0
+
+
+class InstanceF1Score(Metric):
+    """Instance-based F1: compute F1 per sample, then average."""
+    _str_value_fmt = "6.4"  # 6.4321
+
+    def __init__(
+        self,
+        number_of_classes: int,
+        threshold: float = 0.5,
+        name: str = "f1_instance",
+        tags: set[str] = None,
+        filter_codes: bool = True,
+    ):
+        super().__init__(
+            name=name,
+            tags=tags,
+            number_of_classes=number_of_classes,
+            threshold=threshold,
+        )
+        self.filter_codes = filter_codes
+
+    def update(self, batch: dict):
+        logits, targets = detach(batch["logits"]), detach(batch["targets"])
+        predictions = (logits > self.threshold).long()
+        
+        # Compute TP, FP, FN per instance
+        tp_per_instance = torch.sum(predictions * targets, dim=1)
+        fp_per_instance = torch.sum(predictions * (1 - targets), dim=1)
+        fn_per_instance = torch.sum((1 - predictions) * targets, dim=1)
+        
+        # Compute F1 per instance
+        precision_per_instance = tp_per_instance / (tp_per_instance + fp_per_instance + 1e-10)
+        recall_per_instance = tp_per_instance / (tp_per_instance + fn_per_instance + 1e-10)
+        f1_per_instance = 2 * precision_per_instance * recall_per_instance / (
+            precision_per_instance + recall_per_instance + 1e-10
+        )
+        
+        # Accumulate sum and count
+        self._f1_sum += torch.sum(f1_per_instance)
+        self._num_examples += logits.size(0)
+
+    def compute(self, logits: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None) -> torch.Tensor:
+        # If logits and targets are provided, compute directly from them
+        if logits is not None and targets is not None:
+            logits, targets = detach(logits), detach(targets)
+            predictions = (logits > self.threshold).long()
+            
+            # Compute TP, FP, FN per instance
+            tp_per_instance = torch.sum(predictions * targets, dim=1)
+            fp_per_instance = torch.sum(predictions * (1 - targets), dim=1)
+            fn_per_instance = torch.sum((1 - predictions) * targets, dim=1)
+            
+            # Compute F1 per instance
+            precision_per_instance = tp_per_instance / (tp_per_instance + fp_per_instance + 1e-10)
+            recall_per_instance = tp_per_instance / (tp_per_instance + fn_per_instance + 1e-10)
+            f1_per_instance = 2 * precision_per_instance * recall_per_instance / (
+                precision_per_instance + recall_per_instance + 1e-10
+            )
+            
+            # Return mean across instances
+            return torch.mean(f1_per_instance).cpu()
+        
+        # Otherwise, use accumulated values from batch updates
+        if self._num_examples == 0:
+            return torch.tensor(0.0)
+        return (self._f1_sum / self._num_examples).cpu()
+
+    def reset(self):
+        self._f1_sum = torch.tensor(0.0).to(self.device)
+        self._num_examples = 0
+
+
 """ ------------Information Retrieval Metrics-------------"""
 
 

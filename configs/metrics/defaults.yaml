@@ -22,6 +22,15 @@
   configs: 
     average: "macro"
     threshold: 0.5
+- name: InstancePrecision
+  configs: 
+    threshold: 0.5
+- name: InstanceRecall
+  configs: 
+    threshold: 0.5
+- name: InstanceF1Score
+  configs: 
+    threshold: 0.5
 - name: FPR
   configs: 
     average: "micro"

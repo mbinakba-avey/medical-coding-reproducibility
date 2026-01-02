@@ -21,7 +21,7 @@ from src.settings import (
 sns.set_theme("paper", style="whitegrid", palette="muted")
 
 SWEEP_ID = "46ah61d0"
-df = pd.read_feather(Path(DATA_DIRECTORY_MIMICIV_ICD10) / "mimiciv_icd10.feather")
+df = pd.read_feather(Path(DATA_DIRECTORY_MIMICIV_ICD10) / "mimiciv_icd10_revised.feather")
 
 
 def one_hot(

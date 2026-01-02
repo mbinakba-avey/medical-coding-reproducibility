@@ -39,8 +39,8 @@ DATASETS = {
         os.path.join(DATA_DIRECTORY_MIMICIV_ICD9, "mimiciv_icd9_split.feather"),
     ),
     "mimiciv_icd10": (
-        os.path.join(DATA_DIRECTORY_MIMICIV_ICD10, "mimiciv_icd10.feather"),
-        os.path.join(DATA_DIRECTORY_MIMICIV_ICD10, "mimiciv_icd10_split.feather"),
+        os.path.join(DATA_DIRECTORY_MIMICIV_ICD10, "mimiciv_icd10_revised.feather"),
+        os.path.join(DATA_DIRECTORY_MIMICIV_ICD10, "mimiciv_icd10_split_mlb_test.feather"),
     ),
 }
 
