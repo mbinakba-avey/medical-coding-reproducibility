@@ -438,7 +438,14 @@ class AUC(Metric):
         thresholds = torch.linspace(0, 1, 1000)
 
         if average == "micro":
-            return roc_curve(targets.ravel(), logits.ravel())
+            if targets.numel() == 0:
+                return np.array([0.0, 1.0]), np.array([0.0, 1.0]), np.array([1.0, 0.0])
+            
+            y_true = targets.ravel()
+            if len(np.unique(y_true)) < 2:
+                 return np.array([0.0, 1.0]), np.array([0.0, 1.0]), np.array([1.0, 0.0])
+                 
+            return roc_curve(y_true, logits.ravel())
         if average == "none":
             fprs, tprs, thresholds = [], [], []
             for i in range(targets.shape[1]):
