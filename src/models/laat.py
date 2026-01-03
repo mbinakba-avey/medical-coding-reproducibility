@@ -39,7 +39,7 @@ class LAAT(BaseModel):
         self.device = torch.device("cpu")
         self.num_classes = num_classes
 
-        self.loss = F.binary_cross_entropy_with_logits
+        self.loss = F.cross_entropy
 
         print("loading pretrained embeddings...")
         weights = torch.FloatTensor(text_encoder.weights)
@@ -73,14 +73,14 @@ class LAAT(BaseModel):
         data, targets, num_tokens = batch.data, batch.targets, batch.num_tokens
         logits = self(data, num_tokens)
         loss = self.get_loss(logits, targets)
-        logits = torch.sigmoid(logits)
+        logits = torch.softmax(logits, dim=1)
         return {"logits": logits, "loss": loss, "targets": targets}
 
     def validation_step(self, batch) -> dict[str, torch.Tensor]:
         data, targets, num_tokens = batch.data, batch.targets, batch.num_tokens
         logits = self(data, num_tokens)
         loss = self.get_loss(logits, targets)
-        logits = torch.sigmoid(logits)
+        logits = torch.softmax(logits, dim=1)
         return {"logits": logits, "loss": loss, "targets": targets}
 
     def init_hidden(self, batch_size):

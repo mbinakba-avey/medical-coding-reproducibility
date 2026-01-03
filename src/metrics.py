@@ -764,7 +764,8 @@ class Precision_K(Metric):
 
     def update(self, batch: dict):
         logits, targets = detach(batch["logits"]), detach(batch["targets"])
-        top_k = torch.topk(logits, dim=1, k=self._k)
+        k = min(self._k, logits.size(1))
+        top_k = torch.topk(logits, dim=1, k=k)
 
         targets_k = targets.gather(1, top_k.indices)
         logits_k = torch.ones(targets_k.shape, device=targets_k.device)
@@ -841,7 +842,8 @@ class Recall_K(Metric):
 
     def update(self, batch: dict):
         logits, targets = detach(batch["logits"]), detach(batch["targets"])
-        top_k = torch.topk(logits, dim=1, k=self._k)
+        k = min(self._k, logits.size(1))
+        top_k = torch.topk(logits, dim=1, k=k)
 
         targets_k = targets.gather(1, top_k.indices)
         logits_k = torch.ones(targets_k.shape, device=targets_k.device)
