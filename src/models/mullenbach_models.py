@@ -28,7 +28,7 @@ class MullenbachBaseModel(BaseModel):
         self.device = torch.device("cpu")
         self.num_classes = num_classes
 
-        self.loss = F.binary_cross_entropy_with_logits
+        self.loss = F.cross_entropy
 
         print("loading pretrained embeddings...")
         weights = torch.FloatTensor(text_encoder.weights)
@@ -65,7 +65,12 @@ class VanillaConv(MullenbachBaseModel):
             pad_index=pad_index,
         )
 
-        self.conv = nn.Conv1d(self.embed_size, num_filters, kernel_size=kernel_size)
+        self.conv = nn.Conv1d(
+            self.embed_size,
+            num_filters,
+            kernel_size=kernel_size,
+            padding=int(math.floor(kernel_size / 2)),
+        )
         xavier_uniform_(self.conv.weight)
 
         self.fc = nn.Linear(num_filters, num_classes)

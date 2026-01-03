@@ -80,7 +80,7 @@ class MultiResCNN(BaseModel):
         self.device = torch.device("cpu")
         self.num_classes = num_classes
 
-        self.loss = F.binary_cross_entropy_with_logits
+        self.loss = F.cross_entropy
 
         print("loading pretrained embeddings...")
         weights = torch.FloatTensor(text_encoder.weights)
