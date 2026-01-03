@@ -438,7 +438,7 @@ class AUC(Metric):
         thresholds = torch.linspace(0, 1, 1000)
 
         if average == "micro":
-            if targets.numel() == 0:
+            if targets.size == 0:
                 return np.array([0.0, 1.0]), np.array([0.0, 1.0]), np.array([1.0, 0.0])
             
             y_true = targets.ravel()
